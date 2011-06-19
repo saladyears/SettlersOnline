@@ -1,0 +1,11 @@
+<OutOfBrowserSettings ShortName="Settlers Online" EnableGPUAcceleration="True" ShowInstallMenuItem="True">
+  <OutOfBrowserSettings.Blurb>Play Settlers of Natac online!</OutOfBrowserSettings.Blurb>
+  <OutOfBrowserSettings.WindowSettings>
+    <WindowSettings Title="Settlers Online" Height="600" Width="800" />
+  </OutOfBrowserSettings.WindowSettings>
+  <OutOfBrowserSettings.Icons>
+    <Icon Size="16,16">SettlersOnline.png</Icon>
+    <Icon Size="32,32">SettlersOnline.png</Icon>
+    <Icon Size="48,48">SettlersOnline.png</Icon>
+  </OutOfBrowserSettings.Icons>
+</OutOfBrowserSettings>
