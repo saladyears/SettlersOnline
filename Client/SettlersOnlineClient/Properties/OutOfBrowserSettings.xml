@@ -3,6 +3,9 @@
   <OutOfBrowserSettings.WindowSettings>
     <WindowSettings Title="Settlers Online" Height="600" Width="800" />
   </OutOfBrowserSettings.WindowSettings>
+  <OutOfBrowserSettings.SecuritySettings>
+    <SecuritySettings ElevatedPermissions="Required" />
+  </OutOfBrowserSettings.SecuritySettings>
   <OutOfBrowserSettings.Icons>
     <Icon Size="16,16">SettlersOnline.png</Icon>
     <Icon Size="32,32">SettlersOnline.png</Icon>

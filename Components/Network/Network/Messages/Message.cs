@@ -4,7 +4,7 @@ using System.Text;
 
 namespace Network
 {
-    public abstract class Message<T> : IMessage where T : IMessage, new()
+    public abstract class Message : IMessage
     {
         // Properties.
         abstract public MessageType Type { get; }
@@ -16,16 +16,30 @@ namespace Network
         // Protected methods.
         protected void WriteString (string str, MemoryStream stream)
         {
-            byte[] bytes = Encoding.UTF8.GetBytes(str);
+            int length = 0;
+            byte[] bytes = null;
 
-            WriteInt((int) bytes.Length, stream);
-            stream.Write(bytes, 0, bytes.Length);
+            if (str != String.Empty) {
+                bytes = Encoding.UTF8.GetBytes(str);
+                length = bytes.Length;
+            }
+
+            WriteInt(length, stream);
+
+            if (0 < length) {
+                stream.Write(bytes, 0, length);
+            }
         }
 
         protected void WriteBytes (byte[] bytes, MemoryStream stream)
         {
-            WriteInt((int) bytes.Length, stream);
-            stream.Write(bytes, 0, bytes.Length);
+            int length = (null != bytes) ? (int) bytes.Length : 0;
+
+            WriteInt(length, stream);
+
+            if (0 < length) {
+                stream.Write(bytes, 0, bytes.Length);
+            }
         }
 
         protected void WriteInt (int val, MemoryStream stream)
@@ -39,21 +53,26 @@ namespace Network
             byte[] buffer = stream.GetBuffer();
 
             int length = ReadInt(stream);
+            string str = string.Empty;
 
-            string str = Encoding.UTF8.GetString(buffer, (int) stream.Position, length);
-            stream.Position += length;
+            if (0 < length) {
+                str = Encoding.UTF8.GetString(buffer, (int) stream.Position, length);
+                stream.Position += length;
+            }
 
             return str;
         }
 
         protected byte[] ReadBytes (MemoryStream stream)
         {
-            byte[] buffer = stream.GetBuffer();
-
             int length = ReadInt(stream);
-            
-            byte[] bytes = new byte[length];
-            stream.Read(bytes, 0, length);
+            byte[] bytes = null;
+
+            if (0 < length) {
+                bytes = new byte[length];
+                Array.Copy(stream.GetBuffer(), (int) stream.Position, bytes, 0, length);
+                stream.Position += length;
+            }
             
             return bytes;
         }
@@ -66,24 +85,6 @@ namespace Network
             stream.Position += sizeof(int);
 
             return val;
-        }
-
-        // Private types.
-        private class Factory : IMessageFactory
-        {
-            static Factory ()
-            {
-                // This just feels so wrong.
-                IMessage message = new T();
-                MessageFactory.RegisterFactory(message.Type, new Factory());
-            }
-
-            public IMessage SerializeFrom (MemoryStream stream)
-            {
-                IMessage message = new T();
-                message.SerializeFrom(stream);
-                return message;
-            }
         }
     }
 }

@@ -60,6 +60,9 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="DH.Scrypt">
+      <HintPath>..\Scrypt\DH.Scrypt.dll</HintPath>
+    </Reference>
     <Reference Include="mscorlib" />
     <Reference Include="System.Windows" />
     <Reference Include="system" />
@@ -71,11 +74,14 @@
     <Reference Include="System.Windows.Browser" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="..\..\Components\Network\Network\Encryption\AesProvider.cs">
+      <Link>Network\Encryption\AesProvider.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Components\Network\Network\Interfaces\ICryptoProvider.cs">
+      <Link>Network\Interfaces\ICryptoProvider.cs</Link>
+    </Compile>
     <Compile Include="..\..\Components\Network\Network\Interfaces\IMessage.cs">
       <Link>Network\Interfaces\IMessage.cs</Link>
-    </Compile>
-    <Compile Include="..\..\Components\Network\Network\Interfaces\IMessageFactory.cs">
-      <Link>Network\Interfaces\IMessageFactory.cs</Link>
     </Compile>
     <Compile Include="..\..\Components\Network\Network\Interfaces\IMessageReceiver.cs">
       <Link>Network\Interfaces\IMessageReceiver.cs</Link>
@@ -95,8 +101,10 @@
     <Compile Include="..\..\Components\Network\Network\MessageThread.cs">
       <Link>Network\MessageThread.cs</Link>
     </Compile>
+    <Compile Include="Login.cs" />
     <Compile Include="Network\ClientThread.Silverlight.cs" />
     <Compile Include="Network\ConnectThread.Silverlight.cs" />
+    <Compile Include="Network\Encryption\RSACryptoProvider.Silverlight.cs" />
     <Compile Include="UI\App.xaml.cs">
       <DependentUpon>App.xaml</DependentUpon>
     </Compile>

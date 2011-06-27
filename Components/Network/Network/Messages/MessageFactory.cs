@@ -5,30 +5,36 @@ namespace Network
 {
     class MessageFactory
     {
-        // Fields.
-        private static Dictionary<MessageType, IMessageFactory> s_factories = new Dictionary<MessageType, IMessageFactory>();
-
         // Public methods.
-        public static void RegisterFactory (MessageType type, IMessageFactory factory)
-        {
-            s_factories.Add(type, factory);
-        }
-
         public static IMessage CreateMessage (MessageType type, MemoryStream stream)
         {
-            IMessage ret = null;
-            IMessageFactory factory = null;
+            IMessage message = GenerateMessage(type);
 
-            bool success = s_factories.TryGetValue(type, out factory);
-            if (success) {
-                ret = factory.SerializeFrom(stream);
+            if (null != message) {
+                message.SerializeFrom(stream);
             }
-
-            if (null == ret) {
+            else {
                 // TODO: Log error.
             }
 
-            return ret;
+            return message;
+        }
+
+        // Private methods.
+        private static IMessage GenerateMessage (MessageType type)
+        {
+            IMessage message = null;
+
+            // TODO: Turn this into something fancy and automatic.
+            switch (type) {
+                case MessageType.Login:
+                    message = new LoginMessage();
+                    break;
+                default:
+                    break;
+            }
+
+            return message;
         }
     }
 }

@@ -40,10 +40,9 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Network\Encryption\AesProvider.cs" />
+    <Compile Include="Network\Interfaces\ICryptoProvider.cs" />
     <Compile Include="Network\Interfaces\IMessage.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="Network\Interfaces\IMessageFactory.cs">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Network\Interfaces\IMessageReceiver.cs">
@@ -67,6 +66,7 @@
     <Compile Include="Network\MessageThread.cs">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="Network\Encryption\RSACryptoProvider.Desktop.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Network\ServerThread.Desktop.cs">
       <SubType>Code</SubType>

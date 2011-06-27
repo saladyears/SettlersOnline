@@ -9,16 +9,16 @@ namespace Login
         {
             // Create the threads.
             Network.ServerThread server = new Network.ServerThread();
-            Network.ListenThread listen = new Network.ListenThread(4530, server);
+            Network.ListenThread listen = new Network.ListenThread(server, 4530);
 
-            Thread messageThread = new Thread(new ThreadStart(server.Start));
+            Thread serverThread = new Thread(new ThreadStart(server.Start));
             Thread loginThread = new Thread(new ThreadStart(listen.Start));
 
             // Create the login handler.
             Login login = new Login(server);
             
             // Start things up.
-            messageThread.Start();
+            serverThread.Start();
             loginThread.Start();
 
             // We could potentially make this a service so there's no infinite 

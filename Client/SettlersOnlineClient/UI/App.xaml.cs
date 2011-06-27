@@ -15,7 +15,6 @@ namespace SettlersOnlineClient
 {
     public partial class App : Application
     {
-
         public App()
         {
             this.Startup += this.Application_Startup;
@@ -30,22 +29,34 @@ namespace SettlersOnlineClient
             this.RootVisual = new MainPage();
 
             // The first thing we do is show the login dialog.
-            LoginWindow login = new LoginWindow();
-            login.Closed += new EventHandler(Login_Closed);
-            login.Show();
+            LoginWindow loginWindow = new LoginWindow();
+            loginWindow.Closed += new EventHandler(OnLoginClosed);
+            loginWindow.Show();
         }
 
-        private void Login_Closed (object sender, EventArgs e)
+        private void OnLoginClosed (object sender, EventArgs e)
         {
-            LoginWindow login = (LoginWindow) sender;
-            string email = login.EmailText.Text;
-            string password = login.PasswordText.Password;
-            
+            LoginWindow loginWindow = (LoginWindow) sender;
+            string name = loginWindow.EmailText.Text;
+            string password = loginWindow.PasswordText.Password;
+
+            // Determine the DNS end point we need to connect to.
+            System.Windows.Application application = System.Windows.Application.Current;
+            Uri uri = application.Host.Source;
+            DnsEndPoint endPoint = new DnsEndPoint(uri.Host, 4530, System.Net.Sockets.AddressFamily.InterNetwork);
+
             // Time to fire up the network thread and Login script.
             Network.ClientThread client = new Network.ClientThread();
-            Network.ConnectThread connect = new Network.ConnectThread(client);
+            Network.ConnectThread connect = new Network.ConnectThread(client, endPoint);
+            Login login = new Login(client, name, password);
+            
+            // TODO: Create the connect window.
 
-            // TODO: Create the connect window and start up the threads.
+            Thread clientThread = new Thread(new ThreadStart(client.Start));
+            Thread connectThread = new Thread(new ThreadStart(connect.Start));
+
+            clientThread.Start();
+            connectThread.Start();            
         }
 
         private void Application_Exit(object sender, EventArgs e)

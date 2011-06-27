@@ -16,6 +16,8 @@ namespace Network
         void AddReceiver (MessageType type, IMessageReceiver receiver);
         void RemoveReceiver (MessageType type, IMessageReceiver receiver);
 
-        void SendMessage (uint id, IMessage message);
+        void SendMessage (uint id, IMessage message, ICryptoProvider cryptoOverride = null);
+
+        void SetCryptoProvider (uint id, ICryptoProvider cryptoProvider);
     }
 }

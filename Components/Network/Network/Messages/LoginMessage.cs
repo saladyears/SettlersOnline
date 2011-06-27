@@ -3,7 +3,7 @@ using System.Text;
 
 namespace Network
 {
-    public class LoginMessage : Message<LoginMessage>
+    public class LoginMessage : Message
     {
         // Constructors.
         public LoginMessage ()
@@ -18,8 +18,8 @@ namespace Network
 
         // Properties.
         public override MessageType Type { get { return MessageType.Login; } }
-        public string Name { get; private set; }
-        public byte[] Data { get; private set; }
+        public string Name { get; set; }
+        public byte[] Data { get; set; }
 
         // Public methods.
         public override void SerializeTo (MemoryStream stream)

@@ -15,7 +15,7 @@ namespace Network
         private TcpListener             m_listener;
 
         // Constructors
-        public ListenThread (int port, INetworkManager socketHandler)
+        public ListenThread (INetworkManager socketHandler, int port)
         {
             m_port = port;
             m_socketHandler = socketHandler;
@@ -55,10 +55,15 @@ namespace Network
         // Private methods
         private void OnAcceptSocket (IAsyncResult result)
         {
-            Socket socket = m_listener.EndAcceptSocket(result);
+            try {
+                Socket socket = m_listener.EndAcceptSocket(result);
 
-            // Signal that we have a connection.
-            m_socketHandler.HandleConnect(socket);
+                // Signal that we have a connection.
+                m_socketHandler.HandleConnect(socket);
+            }
+            catch (Exception) {
+                // TODO: Log exception.
+            }
 
             // Start listening again.
             m_waiting = false;
