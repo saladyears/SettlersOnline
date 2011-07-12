@@ -1,11 +1,19 @@
-﻿using System;
+﻿using Base;
+using System;
 using System.IO;
 using System.Net.Sockets;
 
 namespace Network
 {
-    public class ClientThread : MessageThread
+    public class ClientThread : MessageThread<ClientThread>
     {
+        // Constructors.
+        public ClientThread (ILogger logger)
+            : base(logger)
+        {
+        }
+
+        // Protected methods.
         protected override bool IsDisconnected (Socket socket)
         {
             // TODO: Figure this out.

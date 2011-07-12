@@ -73,13 +73,18 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Database\IDatabase.cs" />
     <Compile Include="Database\User.cs" />
     <Compile Include="Login.cs" />
+    <Compile Include="LoginAttempt.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
+    <None Include="NLog.config">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Include="Properties\app.manifest" />
   </ItemGroup>
   <ItemGroup>
@@ -105,6 +110,10 @@
     </BootstrapperPackage>
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\Components\Base\Base.Desktop.csproj">
+      <Project>{A3046D5A-9D74-49FB-A189-4ACB181699A1}</Project>
+      <Name>Base.Desktop</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\Components\Network\Network.Desktop.csproj">
       <Project>{B7864673-49B2-4BBF-8B67-4238D2AF558E}</Project>
       <Name>Network.Desktop</Name>

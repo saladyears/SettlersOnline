@@ -15,6 +15,8 @@ namespace SettlersOnlineClient
 {
     public partial class App : Application
     {
+        private Base.ILogger m_logger = new Base.NLogger();
+
         public App()
         {
             this.Startup += this.Application_Startup;
@@ -46,17 +48,14 @@ namespace SettlersOnlineClient
             DnsEndPoint endPoint = new DnsEndPoint(uri.Host, 4530, System.Net.Sockets.AddressFamily.InterNetwork);
 
             // Time to fire up the network thread and Login script.
-            Network.ClientThread client = new Network.ClientThread();
-            Network.ConnectThread connect = new Network.ConnectThread(client, endPoint);
+            Network.ClientThread client = new Network.ClientThread(m_logger);
+            Network.ConnectThread connect = new Network.ConnectThread(m_logger, client, endPoint);
             Login login = new Login(client, name, password);
             
             // TODO: Create the connect window.
 
-            Thread clientThread = new Thread(new ThreadStart(client.Start));
-            Thread connectThread = new Thread(new ThreadStart(connect.Start));
-
-            clientThread.Start();
-            connectThread.Start();            
+            client.Run();
+            connect.Run();
         }
 
         private void Application_Exit(object sender, EventArgs e)

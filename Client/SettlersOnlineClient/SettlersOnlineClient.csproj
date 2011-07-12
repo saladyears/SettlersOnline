@@ -64,6 +64,9 @@
       <HintPath>..\Scrypt\DH.Scrypt.dll</HintPath>
     </Reference>
     <Reference Include="mscorlib" />
+    <Reference Include="NLog">
+      <HintPath>C:\Program Files (x86)\NLog\Silverlight 4.0\NLog.dll</HintPath>
+    </Reference>
     <Reference Include="System.Windows" />
     <Reference Include="system" />
     <Reference Include="System.Core" />
@@ -74,6 +77,18 @@
     <Reference Include="System.Windows.Browser" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="..\..\Components\Base\Logging\ILogger.cs">
+      <Link>Logging\ILogger.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Components\Base\Logging\Log.cs">
+      <Link>Logging\Log.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Components\Base\Logging\NLogger.cs">
+      <Link>Logging\NLogger.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Components\Base\Thread.cs">
+      <Link>Thread.cs</Link>
+    </Compile>
     <Compile Include="..\..\Components\Network\Network\Encryption\AesProvider.cs">
       <Link>Network\Encryption\AesProvider.cs</Link>
     </Compile>
@@ -131,6 +146,9 @@
     </Page>
   </ItemGroup>
   <ItemGroup>
+    <None Include="NLog.config">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Include="Properties\AppManifest.xml" />
   </ItemGroup>
   <ItemGroup>
@@ -154,7 +172,7 @@
       <FlavorProperties GUID="{A1591282-1198-4647-A2B1-27E5FF5F6F3B}">
         <SilverlightProjectProperties />
       </FlavorProperties>
-      <UserProperties ProjectLinkerExcludeFilter="\\?desktop(\\.*)?$;\\?silverlight(\\.*)?$;\.desktop;\.silverlight;\.xaml;^service references(\\.*)?$;\.clientconfig;^web references(\\.*)?$" ProjectLinkReference="b7864673-49b2-4bbf-8b67-4238d2af558e" />
+      <UserProperties ProjectLinkReference="a3046d5a-9d74-49fb-a189-4acb181699a1" ProjectLinkerExcludeFilter="\\?desktop(\\.*)?$;\\?silverlight(\\.*)?$;\.desktop;\.silverlight;\.xaml;^service references(\\.*)?$;\.clientconfig;^web references(\\.*)?$" />
     </VisualStudio>
   </ProjectExtensions>
 </Project>

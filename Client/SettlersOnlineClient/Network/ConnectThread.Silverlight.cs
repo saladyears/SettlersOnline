@@ -1,60 +1,56 @@
-﻿using System;
+﻿using Base;
+using System;
 using System.Net;
 using System.Net.Sockets;
 using System.Threading;
 
 namespace Network
 {
-    public class ConnectThread
+    public class ConnectThread : Thread<ConnectThread>
     {
         // Fields.
         private INetworkManager     m_networkManager;
         private DnsEndPoint         m_endPoint;
-        private volatile bool       m_stop;
-        private volatile bool       m_connect;
+        private volatile bool       m_attemptConnect;
 
         // Constructors.
-        public ConnectThread (INetworkManager networkManager, DnsEndPoint endPoint)
+        public ConnectThread (ILogger logger, INetworkManager networkManager, DnsEndPoint endPoint) 
+            : base(logger)
         {
             m_networkManager = networkManager;
             m_endPoint = endPoint;
-            m_connect = true;
+            m_attemptConnect = true;
         }
         
         // Public methods.
-        public void Start ()
+        public override void Execute ()
         {
-            while (!m_stop) {
-                if (m_connect) {
+            if (m_attemptConnect) {
+                // TODO: Notify connect window.
+
+                SocketAsyncEventArgs ea = new SocketAsyncEventArgs();
+                ea.Completed += OnCompleted;
+                ea.RemoteEndPoint = m_endPoint;
+
+                // Begin an async connect to our given DnsEndPoint.
+                try {
+                    TRACE("Attempting to connect to {0}", m_endPoint.ToString());
+
+                    bool async = Socket.ConnectAsync(SocketType.Stream, ProtocolType.Tcp, ea);
+
+                    // If it immediately connected, proceed.
+                    if (!async) {
+                        HandleCompletion(ea);
+                    }
+                }
+                catch (Exception) {
                     // TODO: Notify event handler.
-
-                    SocketAsyncEventArgs ea = new SocketAsyncEventArgs();
-                    ea.Completed += OnCompleted;
-                    ea.RemoteEndPoint = m_endPoint;
-
-                    // Begin an async connect to our given DnsEndPoint.
-                    try {
-                        bool async = Socket.ConnectAsync(SocketType.Stream, ProtocolType.Tcp, ea);
-
-                        // If it immediately connected, proceed.
-                        if (!async) {
-                            HandleCompletion(ea);
-                        }
-                    }
-                    catch (Exception) {
-                        // TODO: Notify event handler.
-                    }
-
-                    m_connect = false;
                 }
 
-                Thread.Sleep(100);
+                m_attemptConnect = false;
             }
-        }
 
-        public void Stop ()
-        {
-            m_stop = true;
+            Thread.Sleep(100);
         }
 
         // Private methods.
@@ -75,7 +71,7 @@ namespace Network
             }
             else {
                 // TODO: Notify event handler.
-                m_connect = true;
+                m_attemptConnect = true;
             }
         }
     }

@@ -5,11 +5,11 @@
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProductVersion>8.0.30703</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
-    <ProjectGuid>{B7864673-49B2-4BBF-8B67-4238D2AF558E}</ProjectGuid>
+    <ProjectGuid>{A3046D5A-9D74-49FB-A189-4ACB181699A1}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Network</RootNamespace>
-    <AssemblyName>Network</AssemblyName>
+    <RootNamespace>Base</RootNamespace>
+    <AssemblyName>Base</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>
@@ -31,6 +31,10 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="NLog, Version=2.0.0.0, Culture=neutral, PublicKeyToken=5120e14c03d0593c, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>C:\Program Files (x86)\NLog\.NET Framework 4.0\NLog.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
@@ -40,50 +44,22 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Network\Encryption\AesProvider.cs" />
-    <Compile Include="Network\Interfaces\ICryptoProvider.cs" />
-    <Compile Include="Network\Interfaces\IMessage.cs">
+    <Compile Include="Logging\ILogger.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Network\Interfaces\IMessageReceiver.cs">
+    <Compile Include="Logging\Log.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Network\Interfaces\INetworkManager.cs">
+    <Compile Include="Logging\NLogger.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Network\ListenThread.Desktop.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="Network\Messages\LoginMessage.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="Network\Messages\Message.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="Network\Messages\MessageFactory.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="Network\MessageThread.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="Network\Encryption\RSACryptoProvider.Desktop.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Network\ServerThread.Desktop.cs">
+    <Compile Include="Thread.cs">
       <SubType>Code</SubType>
     </Compile>
   </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\Base\Base.Desktop.csproj">
-      <Project>{A3046D5A-9D74-49FB-A189-4ACB181699A1}</Project>
-      <Name>Base.Desktop</Name>
-    </ProjectReference>
-  </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
-  <ProjectExtensions>
-    <VisualStudio>
-      <UserProperties ProjectLinkerExcludeFilter="\\?desktop(\\.*)?$;\\?silverlight(\\.*)?$;\.desktop;\.silverlight;\.xaml;^service references(\\.*)?$;\.clientconfig;^web references(\\.*)?$" />
-    </VisualStudio>
-  </ProjectExtensions>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">

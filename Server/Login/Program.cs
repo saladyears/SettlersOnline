@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Base;
+using Network;
 using System.Threading;
 
 namespace Login
@@ -7,23 +8,29 @@ namespace Login
     {
         static void Main(string[] args)
         {
-            // Create the threads.
-            Network.ServerThread server = new Network.ServerThread();
-            Network.ListenThread listen = new Network.ListenThread(server, 4530);
+            ILogger logger = new NLogger();
 
-            Thread serverThread = new Thread(new ThreadStart(server.Start));
-            Thread loginThread = new Thread(new ThreadStart(listen.Start));
+            // Create the threads.
+            ServerThread server = new ServerThread(logger);
+            ListenThread listen = new ListenThread(logger, server, 4530);
 
             // Create the login handler.
-            Login login = new Login(server);
+            Login login = new Login(logger, server);
             
             // Start things up.
-            serverThread.Start();
-            loginThread.Start();
+            server.Run();
+            listen.Run();
 
             // We could potentially make this a service so there's no infinite 
             // looping.
-            while (true) ;
+            while (true) {
+                if (server.Fatal || listen.Fatal) {
+                    // TODO: Potentially attempt to restart?
+                    break;
+                }
+
+                Thread.Sleep(100);
+            }
         }
     }
 }

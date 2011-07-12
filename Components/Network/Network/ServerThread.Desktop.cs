@@ -1,16 +1,26 @@
-﻿using System;
+﻿using Base;
+using System;
 using System.IO;
 using System.Net.Sockets;
 using System.Collections.Generic;
 
 namespace Network
 {
-    public class ServerThread : MessageThread
+    public class ServerThread : MessageThread<ServerThread>
     {
-        // Fields.
+        #region Fields
         private byte[] m_connected = new byte[1];
-        
-        // Protected methods.
+        #endregion
+
+        #region Constructors
+        public ServerThread (ILogger logger)
+            : base(logger)
+        {
+        }
+        #endregion
+
+
+        #region Protected methods
         protected override bool IsDisconnected (Socket socket)
         {
             bool disconnected = false;
@@ -71,8 +81,9 @@ namespace Network
                 HandleDisconnect(receiver.Id);
             }
         }
+        #endregion
 
-        // Private methods.
+        #region Private methods
         private void OnSend (IAsyncResult ar)
         {
             Sender sender = (Sender) ar.AsyncState;
@@ -112,5 +123,6 @@ namespace Network
                 HandleReceive(receiver, bytesReceived);
             }
         }
+        #endregion
     }
 }

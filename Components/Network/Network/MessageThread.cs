@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Base;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Net.Sockets;
@@ -6,7 +7,7 @@ using System.Threading;
 
 namespace Network
 {
-    public abstract class MessageThread : INetworkManager
+    public abstract class MessageThread<T> : Thread<T>, INetworkManager
     {
         #region Constants
         private const int MAX_MESSAGE_SIZE = 4096;
@@ -45,23 +46,23 @@ namespace Network
         protected abstract void Receive (Receiver receiver, int offset, int size);
         #endregion
 
-        #region Public methods
-        public void Stop ()
+        #region Constructors
+        protected MessageThread (ILogger logger)
+            : base(logger)
         {
-            m_stop = true;
         }
+        #endregion
 
-        public void Start ()
+        #region Public methods
+        public override void Execute ()
         {
-            while (!m_stop) {
-                HandleConnects();
-                HandleCryptos();
-                HandleDisconnects();
-                SendQueuedMessages();
-                CheckForDisconnects();
+            HandleConnects();
+            HandleCryptos();
+            HandleDisconnects();
+            SendQueuedMessages();
+            CheckForDisconnects();
 
-                Thread.Sleep(10);
-            }
+            Thread.Sleep(10);
         }
 
         public void HandleConnect (Socket socket)
