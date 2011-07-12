@@ -58,12 +58,6 @@
     <ApplicationManifest>Properties\app.manifest</ApplicationManifest>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="NHibernate">
-      <HintPath>..\..\bin\Server\NHibernate.dll</HintPath>
-    </Reference>
-    <Reference Include="NHibernate.ByteCode.Castle">
-      <HintPath>..\..\bin\Server\NHibernate.ByteCode.Castle.dll</HintPath>
-    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
@@ -73,7 +67,6 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Database\IDatabase.cs" />
     <Compile Include="Database\User.cs" />
     <Compile Include="Login.cs" />
     <Compile Include="LoginAttempt.cs" />
@@ -113,6 +106,10 @@
     <ProjectReference Include="..\..\Components\Base\Base.Desktop.csproj">
       <Project>{A3046D5A-9D74-49FB-A189-4ACB181699A1}</Project>
       <Name>Base.Desktop</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\Components\Database\Database.Desktop.csproj">
+      <Project>{8A0ACAF6-B7EE-4837-86B9-AA7F8B306207}</Project>
+      <Name>Database.Desktop</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\Components\Network\Network.Desktop.csproj">
       <Project>{B7864673-49B2-4BBF-8B67-4238D2AF558E}</Project>

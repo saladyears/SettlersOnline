@@ -1,4 +1,5 @@
 ﻿using Base;
+using Database;
 using Network;
 using System;
 using System.Collections.Generic;
@@ -15,16 +16,18 @@ namespace Login
             // Fields.
             private uint m_id;
             private INetworkManager m_networkManager;
+            private IDatabase m_database;
             private AesManaged m_aes;
 
             // Constructors.
-            public LoginAttempt (uint id, INetworkManager manager, ILogger logger)
+            public LoginAttempt (ILogger logger, INetworkManager manager, IDatabase database, uint id)
                 : base(logger)
             {
                 this.State = Stage.ReceiveClientKey;
 
                 m_id = id;
                 m_networkManager = manager;
+                m_database = database;
             }
 
             // Properties.
@@ -95,24 +98,24 @@ namespace Login
 
             private void ReceiveCredentials (LoginMessage loginMessage)
             {
-                string name = loginMessage.Name;
-                string password = Encoding.UTF8.GetString(loginMessage.Data);
-
-                User user = null;
-
                 // Look up the user in the database.
-                try {
-                    user = Login.m_session.Get<User>(name);
-                }
-                catch (Exception) {
-                    // TODO: Log failure.
-                }
+                m_database.Get<User>(loginMessage.Name, new AsyncGetCallback(this.OnUser), loginMessage);
+            }
 
+            private void OnUser (object obj, object arg)
+            {
+                User user = obj as User;
+                
                 if (null == user) {
                     INFO("{0} - Non-existent user {1}", m_id, name);
                     m_networkManager.HandleDisconnect(m_id);
                 }
                 else {
+                    LoginMessage loginMessage = arg as LoginMessage;
+
+                    string name = loginMessage.Name;
+                    string password = Encoding.UTF8.GetString(loginMessage.Data);
+
                     bool validated = ValidateCredentials(password, user);
 
                     TRACE("{0} - Validated ({1})", m_id, validated);

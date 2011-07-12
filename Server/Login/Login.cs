@@ -1,9 +1,7 @@
 ﻿using Base;
+using Database;
 using Network;
 using System.Collections.Generic;
-
-// FIXME: Move to Database thread.
-using NHibernate;
 
 namespace Login
 {
@@ -11,26 +9,19 @@ namespace Login
     {
         // Fields.
         private INetworkManager                 m_networkManager;
+        private IDatabase                       m_database;
         private Dictionary<uint, LoginAttempt>  m_loginAttempts = new Dictionary<uint, LoginAttempt>();
 
-        // FIXME: Move to Database thread.
-        public static ISessionFactory                 m_sessionFactory;
-        public static ISession                        m_session;
-
         // Constructors.
-        public Login (ILogger logger, INetworkManager networkManager) : base(logger)
+        public Login (ILogger logger, INetworkManager networkManager, IDatabase database) 
+            : base(logger)
         {
             m_networkManager = networkManager;
+            m_database = database;
             
             m_networkManager.OnConnect += new Connect(OnConnect);
             m_networkManager.OnDisconnect += new Disconnect(OnDisconnect);
             m_networkManager.AddReceiver(MessageType.Login, this);
-
-            // FIXME: Move to Database thread.
-
-            // Initialize NHibernate.
-            m_sessionFactory = new NHibernate.Cfg.Configuration().Configure().BuildSessionFactory();
-            m_session = m_sessionFactory.OpenSession();
         }
 
         // Public methods.
@@ -51,7 +42,7 @@ namespace Login
         {
             TRACE("{0} - Connected", id);
 
-            m_loginAttempts.Add(id, new LoginAttempt(id, m_networkManager, this.Logger));
+            m_loginAttempts.Add(id, new LoginAttempt(this.Logger, m_networkManager, m_database, id));
         }
 
         private void OnDisconnect (uint id)
