@@ -37,7 +37,7 @@ namespace SettlersOnlineClient
         private void OnLoginClosed (object sender, EventArgs e)
         {
             LoginWindow loginWindow = (LoginWindow) sender;
-            string name = loginWindow.EmailText.Text;
+            string name = loginWindow.NameText.Text;
             string password = loginWindow.PasswordText.Password;
 
             // Determine the DNS end point we need to connect to.

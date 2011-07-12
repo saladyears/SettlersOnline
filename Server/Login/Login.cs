@@ -1,6 +1,8 @@
 ﻿using Network;
+using NHibernate;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
 
@@ -9,8 +11,12 @@ namespace Login
     class Login : IMessageReceiver
     {
         // Fields.
-        private INetworkManager m_networkManager;
-        private Dictionary<uint, LoginAttempt> m_loginAttempts = new Dictionary<uint, LoginAttempt>();
+        private INetworkManager                 m_networkManager;
+        private Dictionary<uint, LoginAttempt>  m_loginAttempts = new Dictionary<uint, LoginAttempt>();
+
+        // TODO: Fix these hacks.
+        public static ISessionFactory                 m_sessionFactory;
+        public static ISession                        m_session;
 
         // Constructors.
         public Login (INetworkManager networkManager)
@@ -20,6 +26,12 @@ namespace Login
             m_networkManager.OnConnect += new Connect(OnConnect);
             m_networkManager.OnDisconnect += new Disconnect(OnDisconnect);
             m_networkManager.AddReceiver(MessageType.Login, this);
+
+            // Initialize NHibernate.
+            //<property name="connection.connection_string">Database=settlersonline;Data Source=192.168.0.4,3306;User Id=settlersonline;Password=hecsEnk3</property>
+
+            m_sessionFactory = new NHibernate.Cfg.Configuration().Configure().SetProperty("connection.connection_string", "Database=settlersonline;Data Source=192.168.0.4,3306;User Id=settlersonline;Password=hecsEnk3").BuildSessionFactory();
+            m_session = m_sessionFactory.OpenSession();
         }
 
         // Public methods.
@@ -72,31 +84,6 @@ namespace Login
             {
                 LoginMessage loginMessage = message as LoginMessage;
 
-                // Login steps:
-                //
-                // 1.  Receive the client's public RSA key.
-                // 2.  Send the server's public RSA key to the client.
-                // 3.  Receive the client's encrypted login name and password.
-                //     Note that the password is already hashed pre-encryption.
-                // 4.  Decrypt the client's login name and password.
-                // 5.  Verify name and password against the database.
-                // 6.  If the password is not verified, notify the client and close
-                //     the connection.
-                // 7.  If the password is verified, notify the client and wait
-                //     for the client to send its public key.
-                // 8.  When the client's public key is received, generate a salt
-                //     value for the client's communication with lobby or game
-                //     servers.
-                // 9.  Encrypt the salt value with the client's public key and send
-                //     it to the client.
-                // 10.  Check the database to see if the client is in any ongoing
-                //     games.
-                // 11. If the client is in an ongoing game, send it the port for
-                //     the game server.  Notify the game server of the pending
-                //     connection.
-                // 12. If the client is not in an ongoing game, send it the port 
-                //     for the lobby server.  Notify the lobby server of the 
-                //     pending connection.
                 switch (this.State) {
                     case Stage.ReceiveClientKey:
                         ReceiveClientKey(loginMessage);
@@ -150,7 +137,115 @@ namespace Login
                 string name = loginMessage.Name;
                 string password = Encoding.UTF8.GetString(loginMessage.Data);
 
-                // TODO: Validate against the database.
+                User user = null;
+
+                // Look up the user in the database.
+                try {
+                    user = Login.m_session.Get<User>(name);
+                }
+                catch (Exception) {
+                    // TODO: Log failure.
+                }
+
+                if (null == user) {
+                    // TODO: Log non-existent user.
+                    m_networkManager.HandleDisconnect(m_id);
+                }
+                else {
+                    bool validated = ValidateCredentials(password, user);
+                }
+            }
+
+            private bool ValidateCredentials (string password, User user)
+            {
+                bool valid = false;
+
+                switch (user.HashMethod) {
+                    case "Vanilla":
+                        valid = ValidateVanilla(password, user);
+                        break;
+                    default:
+                        break;
+                }
+                
+                return valid;
+            }
+
+            private bool ValidateVanilla (string password, User user)
+            {
+                bool valid = false;
+
+                // Convert the user password into a usable string.
+                string compare = Encoding.ASCII.GetString(user.Password);
+                string itoa64 = "./0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
+
+                // The Vanilla PHP tests against all kinds of possible password
+                // values.  We will only use the $P version as that it how the
+                // hashes are created from a fresh Vanilla installation.
+                for (;;) {
+                    if ("$P$" != compare.Substring(0, 3)) {
+                        break;
+                    }
+
+                    int countLog2 = itoa64.IndexOf(compare[3]);
+                    if ((7 > countLog2) || (30 < countLog2)) {
+                        break;
+                    }
+
+                    int count = 1 << countLog2;
+                    byte[] salt = Encoding.ASCII.GetBytes(compare.Substring(4, 8));
+                    byte[] pass = Encoding.ASCII.GetBytes(password);
+                    byte[] hash = null;
+
+                    IEnumerable<byte> data = salt.Concat(pass);
+                    
+                    using (MD5 md5 = MD5.Create()) {
+                        hash = md5.ComputeHash(data.ToArray());
+                        do {
+                            data = hash.Concat(pass);
+                            hash = md5.ComputeHash(data.ToArray());
+                        }
+                        while (0 != (--count));
+                    }
+
+                    // Convert the final hash to its ASCII string.
+                    StringBuilder builder = new StringBuilder(compare.Substring(0, 12));
+                    int i = 0;
+                    do {
+                        int value = hash[i++];
+                        builder.Append(itoa64[value & 0x3f]);
+
+                        if (i < hash.Length) {
+                            value |= (hash[i] << 8);
+                        }
+
+                        builder.Append(itoa64[(value >> 6) & 0x3f]);
+
+                        if (++i > hash.Length) {
+                            break;
+                        }
+
+                        if (i < hash.Length) {
+                            value |= (hash[i] << 16);
+                        }
+
+                        builder.Append(itoa64[(value >> 12) & 0x3f]);
+
+                        if (++i > hash.Length) {
+                            break;
+                        }
+
+                        builder.Append(itoa64[(value >> 18) & 0x3f]);
+                    }
+                    while (i < hash.Length);
+
+                    string final = builder.ToString();
+                    valid = (final == compare);
+
+                    break;
+                }
+                
+                return valid;
             }
 
             // Private types.

@@ -25,7 +25,7 @@ namespace SettlersOnlineClient
             this.DialogResult = true;
         }
 
-        private void EmailText_TextChanged (object sender, TextChangedEventArgs e)
+        private void NameText_TextChanged (object sender, TextChangedEventArgs e)
         {
             EnableLoginButton();
         }
@@ -37,7 +37,7 @@ namespace SettlersOnlineClient
 
         private void EnableLoginButton ()
         {
-            LoginButton.IsEnabled = (String.Empty != EmailText.Text.Trim()) && (String.Empty != PasswordText.Password.Trim());
+            LoginButton.IsEnabled = (String.Empty != NameText.Text.Trim()) && (String.Empty != PasswordText.Password.Trim());
         }
     }
 }

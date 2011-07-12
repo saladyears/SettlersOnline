@@ -10,8 +10,8 @@
             <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
 
-        <sdk:Label Height="16" HorizontalAlignment="Left" Margin="8,18,0,0" Name="label1" VerticalAlignment="Top" Width="100" Content="Email Address:" Foreground="White" FontSize="12" FontStyle="Normal" BorderBrush="{x:Null}" Background="{x:Null}" FontStretch="Normal" FontFamily="Lucida Sans Unicode" FontWeight="Normal"></sdk:Label>
-        <TextBox Height="22" HorizontalAlignment="Left" Margin="105,15,0,0" Name="EmailText" VerticalAlignment="Top" Width="180" Foreground="White" Background="Black" TabIndex="0" TextChanged="EmailText_TextChanged" />
+        <sdk:Label Height="16" HorizontalAlignment="Left" Margin="8,18,0,0" Name="label1" VerticalAlignment="Top" Width="100" Content="Name:" Foreground="White" FontSize="12" FontStyle="Normal" BorderBrush="{x:Null}" Background="{x:Null}" FontStretch="Normal" FontFamily="Lucida Sans Unicode" FontWeight="Normal"></sdk:Label>
+        <TextBox Height="22" HorizontalAlignment="Left" Margin="105,15,0,0" Name="NameText" VerticalAlignment="Top" Width="180" Foreground="White" Background="Black" TabIndex="0" TextChanged="NameText_TextChanged" />
         <sdk:Label Background="{x:Null}" BorderBrush="{x:Null}" Content="Password:" FontFamily="Lucida Sans Unicode" FontSize="12" FontStretch="Normal" FontStyle="Normal" FontWeight="Normal" Foreground="White" Height="16" HorizontalAlignment="Left" Margin="8,43,0,0" Name="label2" VerticalAlignment="Top" Width="100" />
         <PasswordBox Height="22" HorizontalAlignment="Left" Margin="105,40,0,0" Name="PasswordText" VerticalAlignment="Top" Width="180" Background="Black" Foreground="White" TabIndex="1" PasswordChanged="PasswordText_PasswordChanged" />
         <Button Content="Login" Height="23" HorizontalAlignment="Right" Margin="0,14,8,0" Name="LoginButton" VerticalAlignment="Top" Width="75" TabIndex="2" Click="OKButton_Click" />
