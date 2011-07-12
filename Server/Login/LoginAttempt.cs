@@ -105,15 +105,15 @@ namespace Login
             private void OnUser (object obj, object arg)
             {
                 User user = obj as User;
+                LoginMessage loginMessage = arg as LoginMessage;
+
+                string name = loginMessage.Name;
                 
                 if (null == user) {
                     INFO("{0} - Non-existent user {1}", m_id, name);
                     m_networkManager.HandleDisconnect(m_id);
                 }
-                else {
-                    LoginMessage loginMessage = arg as LoginMessage;
-
-                    string name = loginMessage.Name;
+                else {                    
                     string password = Encoding.UTF8.GetString(loginMessage.Data);
 
                     bool validated = ValidateCredentials(password, user);
