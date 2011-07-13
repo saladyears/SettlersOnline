@@ -43,7 +43,9 @@ namespace Network
                         HandleCompletion(ea);
                     }
                 }
-                catch (Exception) {
+                catch (Exception ex) {
+                    INFO("Connect failed: {0}", ex.Message);
+
                     // TODO: Notify event handler.
                 }
 

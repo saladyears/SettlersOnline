@@ -55,7 +55,7 @@ namespace Login
                         ERROR("{0} - Invalid login state", m_id);
 
                         // Something went wrong, abort.
-                        m_networkManager.HandleDisconnect(m_id);
+                        m_networkManager.HandleDisconnect(m_id, "invalid login state");
                         break;
                 }
             }
@@ -92,7 +92,7 @@ namespace Login
                 catch (Exception ex) {
                     ERROR("{0} - Key generation failure ({1})", m_id, ex.Message);
 
-                    m_networkManager.HandleDisconnect(m_id);
+                    m_networkManager.HandleDisconnect(m_id, "key generation failure");
                 }
             }
 
@@ -110,8 +110,9 @@ namespace Login
                 string name = loginMessage.Name;
                 
                 if (null == user) {
+                    // FIXME: We should probably let the user know about this.
                     INFO("{0} - Non-existent user {1}", m_id, name);
-                    m_networkManager.HandleDisconnect(m_id);
+                    m_networkManager.HandleDisconnect(m_id, "non-existent user");
                 }
                 else {                    
                     string password = Encoding.UTF8.GetString(loginMessage.Data);

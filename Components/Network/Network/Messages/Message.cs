@@ -9,7 +9,7 @@ namespace Network
         // Properties.
         abstract public MessageType Type { get; }
 
-        // Public methods.
+        // Abstract methods.
         abstract public void SerializeTo (MemoryStream stream);
         abstract public void SerializeFrom (MemoryStream stream);
 

@@ -16,7 +16,9 @@ namespace Network
         // Protected methods.
         protected override bool IsDisconnected (Socket socket)
         {
-            // TODO: Figure this out.
+            // NOTE: It does not seem to be possible to detect a remote
+            // disconnection in Silverlight.  This will probably have to be
+            // detected by the Send/Receive functions.
             return false;
         }
 
@@ -43,9 +45,9 @@ namespace Network
                     CompleteSend(ea);
                 }
             }
-            catch (Exception) {
-                // TODO: Log disconnect.
-                HandleDisconnect(sender.Id);
+            catch (Exception ex) {
+                INFO("SendAsync failed: {0}", ex.Message);
+                HandleDisconnect(sender.Id, "send failed");
             }
         }
 
@@ -64,9 +66,9 @@ namespace Network
                     CompleteReceive(ea);
                 }
             }
-            catch (Exception) {
-                // TODO: Log disconnect.
-                HandleDisconnect(receiver.Id);
+            catch (Exception ex) {
+                INFO("ReceiveAsync failed: {0}", ex.Message);
+                HandleDisconnect(receiver.Id, "receive failed");
             }
         }
 

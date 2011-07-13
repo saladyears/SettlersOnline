@@ -20,7 +20,7 @@ namespace Network
         private Queue<Socket> m_connectQueue = new Queue<Socket>();
         private Queue<Socket> m_disconnectQueue = new Queue<Socket>();
         private Queue<Queuer> m_sendQueue = new Queue<Queuer>();
-        protected Object m_receiverLock = new Object();
+        private Object m_receiverLock = new Object();
         private Object m_cryptoLock = new Object();
         private Object m_connectLock = new Object();
         private Object m_disconnectLock = new Object();
@@ -70,12 +70,13 @@ namespace Network
             }
         }
 
-        public void HandleDisconnect (uint id)
+        public void HandleDisconnect (uint id, string reason)
         {
             Socket socket = null;
             bool success = m_idToSocket.TryGetValue(id, out socket);
             if (success) {
                 lock (m_disconnectLock) {
+                    INFO("Disconnect - {0}", reason);
                     m_disconnectQueue.Enqueue(socket);
                 }
             }
@@ -158,7 +159,7 @@ namespace Network
         {
             // Check for 0 bytes received (the remote socket closed).
             if (0 == bytesReceived) {
-                HandleDisconnect(receiver.Id);
+                HandleDisconnect(receiver.Id, "remote socket closed");
                 return;
             }
 
@@ -201,7 +202,7 @@ namespace Network
                     stream.Position += sizeof(int);
 
                     // Create the message.
-                    IMessage message = MessageFactory.CreateMessage(type, stream);
+                    IMessage message = MessageFactory.CreateMessage(type, stream, this.Logger);
 
                     if (null != message) {
                         lock (m_receiverLock) {
@@ -312,7 +313,7 @@ namespace Network
 
                     // If something went wrong, abort.
                     if (null == sender) {
-                        HandleDisconnect(queueMessage.Id);
+                        HandleDisconnect(queueMessage.Id, "no sender");
                     }
                     else {
                         Send(sender, 0, sizeof(int));
@@ -326,7 +327,7 @@ namespace Network
             foreach (KeyValuePair<uint, Socket> kvp in m_idToSocket) {
                 bool disconnected = IsDisconnected(kvp.Value);
                 if (disconnected) {
-                    HandleDisconnect(kvp.Key);
+                    HandleDisconnect(kvp.Key, "disconnect detected");
                 }
             }
         }

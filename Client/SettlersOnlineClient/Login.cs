@@ -1,4 +1,5 @@
-﻿using Network;
+﻿using Base;
+using Network;
 using System;
 using System.Text;
 using System.Threading;
@@ -6,7 +7,7 @@ using System.Security.Cryptography;
 
 namespace SettlersOnlineClient
 {
-    public class Login : IMessageReceiver
+    public class Login : Log<Login>, IMessageReceiver
     {
         // Fields.
         private INetworkManager     m_networkManager;
@@ -20,7 +21,8 @@ namespace SettlersOnlineClient
         private Stage State { get; set; }
 
         // Constructors.
-        public Login (INetworkManager networkManager, string name, string password)
+        public Login (ILogger logger, INetworkManager networkManager, string name, string password) 
+            : base(logger)
         {
             this.State = Stage.Disconnected;
 
@@ -43,6 +45,9 @@ namespace SettlersOnlineClient
             switch (this.State) {
                 case Stage.ReceiveAesData:
                     ReceiveAesData(loginMessage);
+                    break;
+                case Stage.ReceiveLoginStatus:
+                    ReceiveLoginStatus(loginMessage);
                     break;
                 default:
                     break;
@@ -70,7 +75,12 @@ namespace SettlersOnlineClient
 
         private void OnKeysGenerated (object sender)
         {
-            m_keysGenerated = true;
+            string publicKey = m_rsa.ToXmlString(false);
+
+            if (!m_keysGenerated) {
+                TRACE("Public key generated: {0}", publicKey);
+                m_keysGenerated = true;
+            }
 
             this.State = Stage.ReceiveAesData;
 
@@ -78,12 +88,14 @@ namespace SettlersOnlineClient
             m_networkManager.SetCryptoProvider(m_id, new RSACryptoProvider(sender as RSA.RSACrypto));
 
             // Send our public key to the server.
-            LoginMessage loginMessage = new LoginMessage(m_rsa.ToXmlString(false), null);
+            LoginMessage loginMessage = new LoginMessage(publicKey, null);
             m_networkManager.SendMessage(m_id, loginMessage);
         }
 
         private void ReceiveAesData (LoginMessage loginMessage)
         {
+            this.State = Stage.ReceiveLoginStatus;
+
             // Create a new Aes provider from our details.
             AesManaged aes = new AesManaged();
             aes.KeySize = 256;
@@ -98,6 +110,9 @@ namespace SettlersOnlineClient
             aes.Key = key;
             aes.IV = iv;
 
+            TRACE("{0} - IV = {1}", m_id, BitConverter.ToString(aes.IV));
+            TRACE("{0} - Key = {1}", m_id, BitConverter.ToString(aes.Key));
+
             m_networkManager.SetCryptoProvider(m_id, new AesProvider(aes));
             
             // Send our login information.
@@ -106,11 +121,16 @@ namespace SettlersOnlineClient
             m_networkManager.SendMessage(m_id, loginMessage);
         }
 
+        private void ReceiveLoginStatus (LoginMessage loginMessage)
+        {
+        }
+
         // Private types.
         private enum Stage
         {
             Disconnected,
             ReceiveAesData,
+            ReceiveLoginStatus,
         }        
     }
 }

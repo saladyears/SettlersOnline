@@ -51,6 +51,8 @@ namespace Network
             try {
                 Socket socket = m_listener.EndAcceptSocket(result);
 
+                TRACE("Accepted connection from {0}", socket.RemoteEndPoint.ToString());
+
                 // Signal that we have a connection.
                 m_networkManager.HandleConnect(socket);
             }

@@ -11,7 +11,7 @@ namespace Network
         event Disconnect OnDisconnect;
 
         void HandleConnect (Socket socket);
-        void HandleDisconnect (uint id);
+        void HandleDisconnect (uint id, string reason);
         
         void AddReceiver (MessageType type, IMessageReceiver receiver);
         void RemoveReceiver (MessageType type, IMessageReceiver receiver);

@@ -1,4 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using Base;
+using System;
+using System.Collections.Generic;
 using System.IO;
 
 namespace Network
@@ -6,7 +8,7 @@ namespace Network
     class MessageFactory
     {
         // Public methods.
-        public static IMessage CreateMessage (MessageType type, MemoryStream stream)
+        public static IMessage CreateMessage (MessageType type, MemoryStream stream, ILogger logger)
         {
             IMessage message = GenerateMessage(type);
 
@@ -14,7 +16,7 @@ namespace Network
                 message.SerializeFrom(stream);
             }
             else {
-                // TODO: Log error.
+                logger.Error<MessageFactory>("Unable to serialize message of type {0} from {1}", type.ToString(), BitConverter.ToString(stream.GetBuffer()));
             }
 
             return message;

@@ -50,7 +50,7 @@ namespace SettlersOnlineClient
             // Time to fire up the network thread and Login script.
             Network.ClientThread client = new Network.ClientThread(m_logger);
             Network.ConnectThread connect = new Network.ConnectThread(m_logger, client, endPoint);
-            Login login = new Login(client, name, password);
+            Login login = new Login(m_logger, client, name, password);
             
             // TODO: Create the connect window.
 

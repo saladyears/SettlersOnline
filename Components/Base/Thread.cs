@@ -54,7 +54,13 @@ namespace Base
         private void Start ()
         {
             while (!m_fatal && !m_done) {
-                Execute();
+                try {
+                    Execute();
+                }
+                catch (Exception ex) {
+                    FATAL("Uncaught exception: {0}\n{1}", ex.Message, ex.StackTrace);
+                    this.Fatal = true;
+                }
             }
         }
     }

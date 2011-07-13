@@ -37,6 +37,7 @@ namespace Network
             catch (SocketException se) {
                 // If it is not a WouldBlock, then we're not connected.
                 if (se.SocketErrorCode != SocketError.WouldBlock) {
+                    TRACE("Detected a disconnect");
                     disconnected = true;
                 }
             }
@@ -62,9 +63,10 @@ namespace Network
                     socket.BeginSend(stream.GetBuffer(), offset, size, SocketFlags.None, new AsyncCallback(OnSend), sender);
                 }
             }
-            catch (Exception) {
-                // TODO: Log disconnect.
-                HandleDisconnect(sender.Id);
+            catch (Exception ex) {
+                INFO("BeginSend failed: {0}", ex.Message);
+
+                HandleDisconnect(sender.Id, "send failed");
             }
         }
 
@@ -76,9 +78,10 @@ namespace Network
             try {
                 socket.BeginReceive(stream.GetBuffer(), offset, size, SocketFlags.None, new AsyncCallback(OnReceive), receiver);
             }
-            catch (Exception) {
-                // TODO: Log disconnect.
-                HandleDisconnect(receiver.Id);
+            catch (Exception ex) {
+                INFO("BeginReceive failed: {0}", ex.Message);
+
+                HandleDisconnect(receiver.Id, "receive failed");
             }
         }
         #endregion
@@ -93,9 +96,10 @@ namespace Network
             try {
                 bytesSent = sender.Socket.EndSend(ar);
             }
-            catch (Exception) {
-                // TODO: Log disconnect.
-                HandleDisconnect(sender.Id);
+            catch (Exception ex) {
+                INFO("EndSend failed: {0}", ex.Message);
+
+                HandleDisconnect(sender.Id, "send failed");
                 success = false;
             }
 
@@ -113,9 +117,10 @@ namespace Network
             try {
                 bytesReceived = receiver.Socket.EndReceive(ar);
             }
-            catch (Exception) {
-                // TODO: Log disconnect.
-                HandleDisconnect(receiver.Id);
+            catch (Exception ex) {
+                INFO("EndReceive failed: {0}", ex.Message);
+
+                HandleDisconnect(receiver.Id, "receive failed");
                 success = false;
             }
 
