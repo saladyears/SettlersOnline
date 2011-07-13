@@ -161,8 +161,8 @@ namespace Login
                     }
 
                     int count = 1 << countLog2;
-                    byte[] salt = Encoding.ASCII.GetBytes(compare.Substring(4, 8));
-                    byte[] pass = Encoding.ASCII.GetBytes(password);
+                    byte[] salt = Encoding.UTF8.GetBytes(compare.Substring(4, 8));
+                    byte[] pass = Encoding.UTF8.GetBytes(password);
                     byte[] hash = null;
 
                     IEnumerable<byte> data = salt.Concat(pass);

@@ -14,8 +14,6 @@ namespace Network
         #endregion
 
         #region Fields
-        private volatile bool   m_stop;
-        
         // These fields require thread-safety.
         protected Dictionary<MessageType, HashSet<IMessageReceiver>> m_receivers = new Dictionary<MessageType, HashSet<IMessageReceiver>>();
         private Queue<Crypto> m_cryptoQueue = new Queue<Crypto>();
@@ -277,19 +275,29 @@ namespace Network
             lock (m_disconnectLock) {
                 for (int i = 0; i < m_disconnectQueue.Count; ++i) {
                     Socket socket = m_disconnectQueue.Dequeue();
-                    socket.Shutdown(SocketShutdown.Both);
-                    socket.Close();
 
-                    // NOTE: We need to ensure that sockets are never removed 
-                    // more than once.
-                    Sender sender = m_socketSend[socket];
-                    uint id = sender.Id;
-                    m_idToSocket.Remove(id);
-                    m_socketSend.Remove(socket);
-                    m_socketReceive.Remove(socket);
+                    // Make sure we have a socket to shut down.  Note that it
+                    // is thread-safe to call these Removes as the only place
+                    // we call Add on these collections is in HandleConnects(),
+                    // which cannot happen at the same time as 
+                    // HandleDisconnects() since they are run serially on a
+                    // single thread.
+                    Sender sender = null;
+                    bool success = m_socketSend.TryGetValue(socket, out sender);
+                    if (success) {
+                        socket.Shutdown(SocketShutdown.Both);
+                        socket.Close();
 
-                    if (null != OnDisconnect) {
-                        OnDisconnect(id);
+                        uint id = sender.Id;
+                        m_idToSocket.Remove(id);
+                        m_socketSend.Remove(socket);
+                        m_socketReceive.Remove(socket);
+
+                        TRACE("Disconnected socket {0}", id);
+
+                        if (null != OnDisconnect) {
+                            OnDisconnect(id);
+                        }
                     }
                 }
             }
@@ -328,7 +336,6 @@ namespace Network
             Sender sender = null;
 
             uint id = queuer.Id;
-            IMessage message = queuer.Message;
             Socket socket = null;
 
             bool success = m_idToSocket.TryGetValue(id, out socket);
@@ -340,6 +347,8 @@ namespace Network
                 stream.SetLength(0);
                 
                 // Write in the message type.
+                IMessage message = queuer.Message;
+            
                 int type = (int) message.Type;
                 stream.Write(BitConverter.GetBytes(type), 0, sizeof(int));
 
@@ -362,7 +371,7 @@ namespace Network
                 sender.Size = BitConverter.GetBytes((int) stream.Length);
             }
             else {
-                // TODO: Log error.
+                WARN("Attempted to send to missing socket {0}", id);
             }
 
             return sender;
