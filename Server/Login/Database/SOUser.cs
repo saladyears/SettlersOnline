@@ -1,6 +1,6 @@
 ﻿namespace Login
 {
-    public class User
+    public class SOUser
     {
         public virtual int UserId { get; set; }
         public virtual string Name { get; set; }

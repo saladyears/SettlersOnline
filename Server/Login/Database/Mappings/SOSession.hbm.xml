@@ -1,0 +1,10 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<hibernate-mapping xmlns="urn:nhibernate-mapping-2.2" namespace="Login" assembly="Login">
+  <class name="Login.SOSession, Login" table="so_session" lazy="true">
+    <id name="UserId" column="UserId" />
+    <property name="LastUpdate" column="LastUpdate" type="LocalDateTime"/>
+    <property name="IV" column="IV" type="BinaryBlob" not-null="true"/>
+    <property name="EncryptionKey" column="EncryptionKey" type="BinaryBlob" not-null="true"/>
+    <property name="GameId" column="GameId" />
+  </class>
+</hibernate-mapping>

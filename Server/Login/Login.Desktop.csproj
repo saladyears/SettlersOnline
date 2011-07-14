@@ -67,7 +67,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Database\User.cs" />
+    <Compile Include="Database\SOSession.cs" />
+    <Compile Include="Database\SOUser.cs" />
     <Compile Include="Login.cs" />
     <Compile Include="LoginAttempt.cs" />
     <Compile Include="Program.cs" />
@@ -117,7 +118,10 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="Database\Mappings\User.hbm.xml" />
+    <EmbeddedResource Include="Database\Mappings\SOUser.hbm.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Database\Mappings\SOSession.hbm.xml" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

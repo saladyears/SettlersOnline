@@ -99,33 +99,53 @@ namespace Login
             private void ReceiveCredentials (LoginMessage loginMessage)
             {
                 // Look up the user in the database.
-                m_database.Get<User>(loginMessage.Name, new AsyncGetCallback(this.OnUser), loginMessage);
+                m_database.Get<SOUser>(loginMessage.Name, new AsyncGetCallback(this.OnGetUser), loginMessage);
             }
 
-            private void OnUser (object obj, object arg)
+            private void OnGetUser (object obj, object arg, bool success)
             {
-                User user = obj as User;
+                SOUser user = obj as SOUser;
                 LoginMessage loginMessage = arg as LoginMessage;
 
                 string name = loginMessage.Name;
-                
-                if (null == user) {
-                    // FIXME: We should probably let the user know about this.
-                    INFO("{0} - Non-existent user {1}", m_id, name);
-                    m_networkManager.HandleDisconnect(m_id, "non-existent user");
-                }
-                else {                    
-                    string password = Encoding.UTF8.GetString(loginMessage.Data);
+                string info = String.Empty;
+                bool validated = false;
 
-                    bool validated = ValidateCredentials(password, user);
+                // Check for failures.
+                if (false == success) {
+                    info = "Database connection is down";
+                }
+                else if (null == user) {
+                    INFO("{0} - Non-existent user {1}", m_id, name);
+
+                    info = string.Format("No user named {0} exists", name);
+                }
+                else {
+                    string password = Encoding.UTF8.GetString(loginMessage.Data);
+                    validated = ValidateCredentials(password, user);
 
                     TRACE("{0} - Validated ({1})", m_id, validated);
 
-                    // TODO: Deal with validation.
+                    info = "Incorrect password";
+                }
+
+                if (!validated) {
+                    byte[] response = new byte[1];
+                    response[0] = 0;
+
+                    loginMessage.Name = info;
+                    loginMessage.Data = response;
+
+                    m_networkManager.SendMessage(m_id, loginMessage);
+                }
+                else {
+                    // Look in the session table to see if this user is already
+                    // in a game.
+                    m_database.Get<SOSession>(user.UserId, new AsyncGetCallback(this.OnGetSession), user);
                 }
             }
 
-            private bool ValidateCredentials (string password, User user)
+            private bool ValidateCredentials (string password, SOUser user)
             {
                 bool valid = false;
 
@@ -140,7 +160,7 @@ namespace Login
                 return valid;
             }
 
-            private bool ValidateVanilla (string password, User user)
+            private bool ValidateVanilla (string password, SOUser user)
             {
                 bool valid = false;
 
@@ -215,6 +235,53 @@ namespace Login
                 }
 
                 return valid;
+            }
+
+            private void OnGetSession (object obj, object arg, bool success)
+            {
+                SOSession session = obj as SOSession;
+                SOUser user = arg as SOUser;
+                LoginMessage loginMessage = new LoginMessage();
+
+                byte[] response = new byte[1];
+                response[0] = 1;
+                loginMessage.Data = response;
+
+                if (null != session && 0 != session.GameId) {
+                    // TODO: Set the game server string.
+                    loginMessage.Name = "";
+                }
+                else {
+                    // TODO: Set the lobby server string.
+                    loginMessage.Name = "";
+                }
+
+                // In either case, we update the session data.
+                if (null == session) {
+                    session = new SOSession();
+                    session.UserId = user.UserId;
+                    session.GameId = 0;
+                }
+
+                session.LastUpdate = DateTime.Now;
+                session.IV = m_aes.IV;
+                session.EncryptionKey = m_aes.Key;
+
+                m_database.Set<SOSession>(session, new AsyncSetCallback(this.OnSetSession), loginMessage);
+            }
+
+            private void OnSetSession (object arg, bool success)
+            {
+                LoginMessage loginMessage = arg as LoginMessage;
+
+                // If we failed to update the database, no other servers will
+                // know how to decrypt this user's messages.
+                if (!success) {
+                    loginMessage.Name = "Database connection is down";
+                    loginMessage.Data[0] = 0;
+                }
+
+                m_networkManager.SendMessage(m_id, loginMessage);
             }
 
             // Private types.

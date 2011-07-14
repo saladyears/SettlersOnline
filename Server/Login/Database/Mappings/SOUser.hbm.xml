@@ -1,6 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
 <hibernate-mapping xmlns="urn:nhibernate-mapping-2.2" namespace="Login" assembly="Login">
-  <class name="Login.User, Login" table="gdn_user" lazy="true" mutable="false">
+  <class name="Login.SOUser, Login" table="gdn_user" lazy="true" mutable="false">
     <id name="Name" column="Name" />
     <property name="UserId" column="UserId" />
     <property name="Password" column="Password" />

@@ -61,6 +61,7 @@ namespace SettlersOnlineClient
 
             // Start generating our keys (if needed).
             if (!m_keysGenerated) {
+                // TODO: Notify connect window.
                 m_rsa.GenerateKeys();
             }
             else {
@@ -123,6 +124,16 @@ namespace SettlersOnlineClient
 
         private void ReceiveLoginStatus (LoginMessage loginMessage)
         {
+            byte success = loginMessage.Data[0];
+
+            // TODO: Notify connect window.
+
+            if (0 == success) {
+                // TODO: Go back to connection window.
+            }
+            else {
+                // TODO: Connect to next server.
+            }
         }
 
         // Private types.
